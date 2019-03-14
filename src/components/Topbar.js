@@ -15,7 +15,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import Menu from './Menu';
 
-const logo = require('../images/logo.svg');
+const logo = require('../images/shape.svg');
 
 const styles = theme => ({
   appBar: {
@@ -133,7 +133,7 @@ class Topbar extends Component {
                     <Typography variant="h6" color="inherit" noWrap>
                       <Link to='/' className={classes.link}>
                         <img width={20} src={logo} alt="" />
-                        <span className={classes.tagline}>Material Sense</span>
+                        <span className={classes.tagline}>Console Manager</span>
                       </Link>
                     </Typography>
                   </div>
@@ -141,7 +141,7 @@ class Topbar extends Component {
                     <React.Fragment>
                       <div className={classes.productLogo}>
                         <Typography>
-                          A material UI Template
+                          Webhook.yunplus.io
                         </Typography>
                       </div>
                       <div className={classes.iconContainer}>
