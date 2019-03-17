@@ -139,11 +139,6 @@ class Topbar extends Component {
                   </div>
                   { !this.props.noTabs && (
                     <React.Fragment>
-                      <div className={classes.productLogo}>
-                        <Typography>
-                          Webhook.yunplus.io
-                        </Typography>
-                      </div>
                       <div className={classes.iconContainer}>
                         <IconButton onClick={this.mobileMenuOpen} className={classes.iconButton} color="inherit" aria-label="Menu">
                           <MenuIcon />

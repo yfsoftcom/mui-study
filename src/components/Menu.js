@@ -1,16 +1,12 @@
 const Menu = [
   {
-    label: "Home",
+    label: "Shell-Scripts",
     pathname: "/"
   },
-  {
-    label: "Dashboard",
-    pathname: "/dashboard"
-  },
-  {
-    label: "Cards",
-    pathname: "/cards"
-  }
+  // {
+  //   label: "Console",
+  //   pathname: "/dashboard"
+  // }
 
 ];
 

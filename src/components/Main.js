@@ -1,6 +1,7 @@
 import React,  { Component } from 'react';
 import withStyles from '@material-ui/core/styles/withStyles';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import CardItem from './cards/CardItem';
 import Topbar from './Topbar';
@@ -11,6 +12,18 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+
+import IconButton from '@material-ui/core/IconButton';
+import RunIcon from '@material-ui/icons/PlayArrow';
+import EditIcon from '@material-ui/icons/BorderColor';
+import DeleteIcon from '@material-ui/icons/Delete';
+
+import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 const backgroundShape = require('../images/shape.svg');
 
@@ -49,7 +62,23 @@ const rows = [
 ];
 class Main extends Component {
 
+  state = {
+    open: false,
+  };
+
   componentDidMount() {}
+
+  handleClickOpen = () => {
+    this.setState({ open: true });
+  };
+
+  handleClose = () => {
+    this.setState({ open: false });
+  };
+
+  handleSave = () => {
+    this.setState({ open: false });
+  };
 
   render() {
     const { classes } = this.props;
@@ -59,20 +88,62 @@ class Main extends Component {
       <React.Fragment>
         <CssBaseline />
         <Topbar />
+        <Dialog
+          open={this.state.open}
+          onClose={this.handleClose}
+          fullWidth={ true }
+          maxWidth={ 'sm'}
+          aria-labelledby="form-dialog-title"
+        >
+          <DialogTitle id="form-dialog-title">Shell Editor</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="name"
+              label="Script Name"
+              type="text"
+              variant="outlined"
+              fullWidth
+            />
+            <DialogContentText>
+              Edit the shell script file.
+            </DialogContentText>
+            <TextField
+              variant="outlined"
+              margin="dense"
+              multiline
+              rows="10"
+              id="name"
+              label="Script Content"
+              type="text"
+              fullWidth
+            />
+
+
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={this.handleClose} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={this.handleSave} color="primary">
+              Save
+            </Button>
+          </DialogActions>
+        </Dialog>
         <div className={classes.root}>
           <Grid container justify="center"> 
             <Grid spacing={24} alignItems="center" justify="center" container className={classes.grid}>
               <Grid item xs={12}>
-                <SectionHeader title="Shells" subtitle="The shell scripts" />
+                <div>
+                  <Button variant="contained" color="primary" className={classes.button} onClick={ this.handleClickOpen }>Create</Button>
+                </div>
                 <Paper className={classes.root}>
                   <Table className={classes.table}>
                     <TableHead>
                       <TableRow>
                         <TableCell>Shell Name</TableCell>
-                        <TableCell align="right">Run</TableCell>
-                        <TableCell align="right">Edit</TableCell>
-                        <TableCell align="right">Hook</TableCell>
-                        <TableCell align="right">Delete</TableCell>
+                        <TableCell align="right">Operation</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -81,10 +152,17 @@ class Main extends Component {
                           <TableCell component="th" scope="row">
                             {row.name}
                           </TableCell>
-                          <TableCell align="right">{row.calories}</TableCell>
-                          <TableCell align="right">{row.fat}</TableCell>
-                          <TableCell align="right">{row.carbs}</TableCell>
-                          <TableCell align="right">{row.protein}</TableCell>
+                          <TableCell align="right">
+                            <IconButton color="secondary" aria-label="Run" className={classes.margin}>
+                              <RunIcon fontSize="small" color="action"/>
+                            </IconButton>
+                            <IconButton color="default" aria-label="Edit" className={classes.margin}>
+                              <EditIcon fontSize="small" color="default" />
+                            </IconButton>
+                            <IconButton color="secondary" aria-label="Delete" className={classes.margin}>
+                              <DeleteIcon fontSize="small" color="error" />
+                            </IconButton>
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

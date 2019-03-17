@@ -19,17 +19,12 @@ class SectionHeader extends Component {
     const { classes, title, subtitle} = this.props;
     return (
       <div className={classes.sectionContainer}>
-        <Typography variant="subtitle1" className={classes.title}>
+        <h5 variant="subtitle1" className={classes.title}>
           {title}
-        </Typography>
-        <Typography variant="body1" gutterBottom>
+        </h5>
+        <p variant="body1" gutterBottom>
           {subtitle}
-        </Typography>
-        <div>
-          <Button variant="outlined" className={classes.outlinedButtom}>
-            Get help
-          </Button>
-        </div>
+        </p>
       </div>
     )
   }
