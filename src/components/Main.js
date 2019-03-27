@@ -1,4 +1,7 @@
 import React,  { Component } from 'react';
+import _map from 'lodash/map';
+import swal from '@sweetalert/with-react'
+
 import withStyles from '@material-ui/core/styles/withStyles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Button from '@material-ui/core/Button';
@@ -29,8 +32,10 @@ import classNames from 'classnames';
 import Fab from '@material-ui/core/Fab';
 
 import UpIcon from '@material-ui/icons/KeyboardArrowUp';
-import DownIcon from '@material-ui/icons/KeyboardArrowDown';
+
 import green from '@material-ui/core/colors/green';
+
+import { Func } from 'fpmc-jssdk';
 
 const backgroundShape = require('../images/shape.svg');
 
@@ -68,7 +73,7 @@ const styles = theme => ({
     padding: 10,
   },
   consoleContent: {
-    maxHeight: 400,
+    maxHeight: 600,
     minHeight: 200,
     overflowY: 'auto',
   },
@@ -79,32 +84,35 @@ const styles = theme => ({
     minWidth: 700,
   },
 })
-
-let id = 0;
-function createData(name, calories, fat, carbs, protein) {
-  id += 1;
-  return { id, name, calories, fat, carbs, protein };
-}
-
-const rows = [
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-  createData('Eclair', 262, 16.0, 24, 6.0),
-  createData('Cupcake', 305, 3.7, 67, 4.3),
-  createData('Gingerbread', 356, 16.0, 49, 3.9),
-];
 class Main extends Component {
 
   state = {
     open: false,
     console: false,
+    scripts: {},
+    edit: { 
+      title: '***.sh',
+      content: '# /sh/bin\necho "oooops"',
+    },
+    create: true,
     outputs: [
       'success',
       '0'
     ]
   };
 
-  componentDidMount() {}
+  componentDidMount() {
+    const scripts = {};
+    new Func('scripts.list')
+      .invoke()
+      .then(data => {
+        data.map( item => {
+          scripts[item] = ''
+        })
+        this.setState({ scripts });
+      })
+
+  }
 
   toggleDrawer = (side, open) => () => {
     this.setState({
@@ -120,14 +128,109 @@ class Main extends Component {
     this.setState({ open: false });
   };
 
-  handleSave = () => {
+  handleChange = (key ,val) => {
+    const { edit } = this.state;
+    edit[key] = val;
+    this.setState({ edit })
+  }
+
+  handleSave = async () => {
+    const sure = await swal({
+      title: "Are you sure?",
+      text: "Are you sure that you want to save this file?",
+      icon: "warning",
+      dangerMode: true,
+    });
+    if(!sure){ return; }
+    const { create, edit } = this.state;
     this.setState({ open: false });
+    new Func('scripts.save')
+      .invoke({
+        isCreate: create,
+        ...edit
+      })
+      .then(rsp => {
+        const { scripts } = this.state;
+        scripts[edit.title] = '';
+        this.setState({ scripts })
+      })
+      .catch(error => {
+        console.error(error);
+        swal("Oops!", "Something went wrong!", "error");
+      })
   };
 
+  handleRun = (name) => {
+    const { outputs } = this.state;
+    this.setState({
+      console: true,
+    })
+    new Func('scripts.run')
+      .invoke({
+        script: name,
+      })
+      .then(rsp => {
+        outputs.unshift(rsp.data)
+        this.setState({ outputs })
+      })
+      .catch(error => {
+        console.error(error);
+        swal("Oops!", "Something went wrong!", "error");
+      })
+      
+  }
+
+  handleClean = () => {
+    this.setState({
+      outputs: []
+    })
+  }
+
+  handleEdit = async (name) => {
+    try {
+      const rsp = await new Func('scripts.get').invoke({ script: name })
+      this.setState({
+        create: false,
+        open: true,
+        edit: {
+          title: name,
+          content: rsp
+        }
+      })
+    } catch (error) {
+      console.error(error);
+      swal("Oops!", "Something went wrong!", "error");
+    }
+    
+  }
+
+  handleDelete = async(name) => {
+    const willDelete = await swal({
+      title: "Are you sure?",
+      text: "Are you sure that you want to delete this file?",
+      icon: "warning",
+      dangerMode: true,
+    });
+    if(willDelete){
+      new Func('scripts.delete')
+        .invoke({
+          script: name
+        })
+        .then(rsp =>{
+          const { scripts } = this.state;
+          delete scripts[name];
+          this.setState( { scripts })
+        })
+        .catch(error => {
+          console.error(error);
+          swal("Oops!", "Something went wrong!", "error");
+        })
+    }
+    
+  }
   render() {
     const { classes } = this.props;
-    const currentPath = this.props.location.pathname
-    const { outputs } = this.state;
+    const { outputs, create, scripts } = this.state;
     return (
       <React.Fragment>
         <CssBaseline />
@@ -144,8 +247,11 @@ class Main extends Component {
             <TextField
               autoFocus
               margin="dense"
+              disabled={ !create }
+              onChange={ (e) => this.handleChange('title', e.target.value) }
               id="name"
-              label="Script Name"
+              value={this.state.edit.title}
+              label="Script Title"
               type="text"
               variant="outlined"
               fullWidth
@@ -156,7 +262,9 @@ class Main extends Component {
             <TextField
               variant="outlined"
               margin="dense"
+              onChange={ (e) => this.handleChange('content', e.target.value) }
               multiline
+              value={this.state.edit.content}
               rows="10"
               id="name"
               label="Script Content"
@@ -191,24 +299,25 @@ class Main extends Component {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {rows.map(row => (
-                        <TableRow key={row.id}>
+                      { _map(scripts, (row, name) => {
+                        return <TableRow key={ `script-${name}` }>
                           <TableCell component="th" scope="row">
-                            {row.name}
+                            {name}
                           </TableCell>
                           <TableCell align="right">
-                            <IconButton color="secondary" aria-label="Run" className={classes.margin}>
+                            <IconButton color="secondary" aria-label="Run" className={classes.margin} onClick={ () => this.handleRun(name) }>
                               <RunIcon fontSize="small" color="action"/>
                             </IconButton>
-                            <IconButton color="default" aria-label="Edit" className={classes.margin}>
-                              <EditIcon fontSize="small" color="default" />
+                            <IconButton color="secondary" aria-label="Edit" className={classes.margin} onClick={ () => this.handleEdit(name) }>
+                              <EditIcon fontSize="small" color="secondary" />
                             </IconButton>
-                            <IconButton color="secondary" aria-label="Delete" className={classes.margin}>
+                            <IconButton color="secondary" aria-label="Delete" className={classes.margin} onClick={ () => this.handleDelete(name) }>
                               <DeleteIcon fontSize="small" color="error" />
                             </IconButton>
                           </TableCell>
                         </TableRow>
-                      ))}
+                      })
+                    }
                     </TableBody>
                   </Table>
                 </Paper>
@@ -217,7 +326,7 @@ class Main extends Component {
           </Grid>
         </div>
       
-        <Fab className={ classNames(classes.fab, classes.fabGreen) } color={ green[500] }
+        <Fab className={ classNames(classes.fab, classes.fabGreen) } color="primary"
           onClick={ this.toggleDrawer('console', true) }
         >
           { <UpIcon />}
@@ -225,6 +334,8 @@ class Main extends Component {
         <SwipeableDrawer
           anchor="bottom"
           open={this.state.console}
+          onOpen={ this.toggleDrawer('console', true) }
+          onClose={ this.toggleDrawer('console', false)  }
         >
           <div
             tabIndex={0}
@@ -234,9 +345,17 @@ class Main extends Component {
             // onKeyDown={this.toggleDrawer('console', false)}
             
           >
-            <Fab className={ classes.consoleClose } onClick={ this.toggleDrawer('console', false) }>
+            {/* <Fab className={ classes.consoleClose } onClick={ this.toggleDrawer('console', false) }>
               <DownIcon />
-            </Fab>
+            </Fab> */}
+            <div className={ classes.consoleClose } >
+              <Button size="small" className={classes.margin} onClick={ this.handleClean }>
+                Clean
+              </Button>
+              <Button size="small" color="secondary" className={classes.margin} onClick={ this.toggleDrawer('console', false) }>
+                x
+              </Button>
+            </div>
             <h3>Console</h3>
             <div className= { classes.consoleContent }>
               {

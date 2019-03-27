@@ -3,6 +3,9 @@ import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import './App.css';
 import Routes from './routes'
 import { blue, indigo } from '@material-ui/core/colors'
+import { init } from 'fpmc-jssdk';
+
+init({ appkey:'123123', masterKey:'123123', endpoint: '/api' });
 
 const theme = createMuiTheme({
   palette: {
@@ -14,6 +17,7 @@ const theme = createMuiTheme({
     }
   },
   typography: {
+    useNextVariants: true,
     // Use the system font instead of the default Roboto font.
     fontFamily: [
       '"Lato"',

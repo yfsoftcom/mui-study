@@ -29,5 +29,11 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "devDependencies": {
+    "@sweetalert/with-react": "^0.1.1",
+    "fpmc-jssdk": "^1.0.7",
+    "lodash": "^4.17.11",
+    "sweetalert": "^2.1.2"
+  }
 }
