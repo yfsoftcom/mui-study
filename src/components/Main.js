@@ -3,9 +3,7 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
-import CardItem from './cards/CardItem';
 import Topbar from './Topbar';
-import SectionHeader from './typo/SectionHeader';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -25,6 +23,15 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
+import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
+
+import classNames from 'classnames';
+import Fab from '@material-ui/core/Fab';
+
+import UpIcon from '@material-ui/icons/KeyboardArrowUp';
+import DownIcon from '@material-ui/icons/KeyboardArrowDown';
+import green from '@material-ui/core/colors/green';
+
 const backgroundShape = require('../images/shape.svg');
 
 const styles = theme => ({
@@ -38,6 +45,32 @@ const styles = theme => ({
     marginTop: 20,
     padding: 20,
     paddingBottom: 200
+  },
+  fab: {
+    position: 'absolute',
+    bottom: theme.spacing.unit * 2,
+    right: theme.spacing.unit * 2,
+  },
+  fabGreen: {
+    color: theme.palette.common.white,
+    backgroundColor: green[500],
+    '&:hover': {
+      backgroundColor: green[600],
+    },
+  },
+  consoleClose: {
+    position: 'absolute',
+    top: theme.spacing.unit * 2,
+    right: theme.spacing.unit * 2,
+  },
+  console: {
+    // height: 400,
+    padding: 10,
+  },
+  consoleContent: {
+    maxHeight: 400,
+    minHeight: 200,
+    overflowY: 'auto',
   },
   grid: {
     width: 1000
@@ -64,9 +97,20 @@ class Main extends Component {
 
   state = {
     open: false,
+    console: false,
+    outputs: [
+      'success',
+      '0'
+    ]
   };
 
   componentDidMount() {}
+
+  toggleDrawer = (side, open) => () => {
+    this.setState({
+      [side]: open,
+    });
+  };
 
   handleClickOpen = () => {
     this.setState({ open: true });
@@ -83,7 +127,7 @@ class Main extends Component {
   render() {
     const { classes } = this.props;
     const currentPath = this.props.location.pathname
-
+    const { outputs } = this.state;
     return (
       <React.Fragment>
         <CssBaseline />
@@ -172,6 +216,42 @@ class Main extends Component {
             </Grid>
           </Grid>
         </div>
+      
+        <Fab className={ classNames(classes.fab, classes.fabGreen) } color={ green[500] }
+          onClick={ this.toggleDrawer('console', true) }
+        >
+          { <UpIcon />}
+        </Fab>
+        <SwipeableDrawer
+          anchor="bottom"
+          open={this.state.console}
+        >
+          <div
+            tabIndex={0}
+            role="button"
+            className={ classes.console }
+            // onClick={this.toggleDrawer('console', false)}
+            // onKeyDown={this.toggleDrawer('console', false)}
+            
+          >
+            <Fab className={ classes.consoleClose } onClick={ this.toggleDrawer('console', false) }>
+              <DownIcon />
+            </Fab>
+            <h3>Console</h3>
+            <div className= { classes.consoleContent }>
+              {
+                outputs.map( (output, index) => {
+                  return (
+                    <pre key={`output-${index}`}>
+                      {output}
+                    </pre>
+                  )
+                })
+              }
+              
+            </div>
+          </div>
+        </SwipeableDrawer>
       </React.Fragment>
     )
   }
