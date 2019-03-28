@@ -2,6 +2,22 @@
 
 [https://material-ui.com/getting-started/installation/](https://material-ui.com/getting-started/installation/)
 
+# tar && zip the build dir
+```bash
+cd build
+tar -zcvf app.tar.gz .
+```
+
+# list the zip file
+```bash
+tar -ztvf app.tar.gz
+```
+
+# unzip the file
+```bash
+tar -xzf ../app.tar.gz
+```
+
 
 # Release file download url
 [https://github.com/yfsoftcom/mui-study/releases/download/beta/app.tar.gz](https://github.com/yfsoftcom/mui-study/releases/download/beta/app.tar.gz)
