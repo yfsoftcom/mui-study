@@ -32,6 +32,8 @@ import classNames from 'classnames';
 import Fab from '@material-ui/core/Fab';
 
 import UpIcon from '@material-ui/icons/KeyboardArrowUp';
+import Fade from '@material-ui/core/Fade';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import green from '@material-ui/core/colors/green';
 
@@ -96,9 +98,9 @@ class Main extends Component {
     },
     create: true,
     outputs: [
-      'success',
-      '0'
-    ]
+
+    ],
+    loading: false,
   };
 
   componentDidMount() {
@@ -160,10 +162,18 @@ class Main extends Component {
       })
   };
 
-  handleRun = (name) => {
+  handleRun = async (name) => {
+    const sure = await swal({
+      title: "Are you sure?",
+      text: "Are you sure that you want to execute this script?",
+      icon: "warning",
+      dangerMode: true,
+    });
+    if(!sure){ return; }
     const { outputs } = this.state;
     this.setState({
       console: true,
+      loading: true,
     })
     new Func('scripts.run')
       .invoke({
@@ -171,10 +181,11 @@ class Main extends Component {
       })
       .then(rsp => {
         outputs.unshift(rsp.data)
-        this.setState({ outputs })
+        this.setState({ outputs, loading: false })
       })
       .catch(error => {
         console.error(error);
+        this.setState({ loading: false })
         swal("Oops!", "Something went wrong!", "error");
       })
       
@@ -230,7 +241,7 @@ class Main extends Component {
   }
   render() {
     const { classes } = this.props;
-    const { outputs, create, scripts } = this.state;
+    const { outputs, create, scripts, loading } = this.state;
     return (
       <React.Fragment>
         <CssBaseline />
@@ -357,6 +368,13 @@ class Main extends Component {
               </Button>
             </div>
             <h3>Console</h3>
+            <Fade
+              in={loading}
+              unmountOnExit
+            >
+              <CircularProgress />
+            </Fade>
+            
             <div className= { classes.consoleContent }>
               {
                 outputs.map( (output, index) => {
