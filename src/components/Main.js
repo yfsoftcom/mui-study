@@ -123,7 +123,7 @@ class Main extends Component {
   };
 
   handleClickOpen = () => {
-    this.setState({ open: true });
+    this.setState({ open: true, create: true });
   };
 
   handleClose = () => {

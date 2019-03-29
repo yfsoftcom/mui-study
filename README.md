@@ -26,3 +26,11 @@ use `wget` to download the file
 ```bash
 $ wget https://github.com/yfsoftcom/mui-study/releases/download/beta/app.tar.gz
 ```
+
+
+# Add the ui for the proj
+```
+// add postinstall script for the package.json
+"postinstall": cpy node_modules/ui.webhook.yunplus.io/build/*.* public/ && cpy node_modules/ui.webhook.yunplus.io/build/index.html views/index.html
+
+```
