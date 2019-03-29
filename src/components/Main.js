@@ -86,16 +86,20 @@ const styles = theme => ({
     minWidth: 700,
   },
 })
+
+const getDefaultEdit = () =>{ 
+  return {
+    title: '***.sh',
+    content: '# /sh/bin\necho "oooops"',
+  }
+};
 class Main extends Component {
 
   state = {
     open: false,
     console: false,
     scripts: {},
-    edit: { 
-      title: '***.sh',
-      content: '# /sh/bin\necho "oooops"',
-    },
+    edit: getDefaultEdit(),
     create: true,
     outputs: [
 
@@ -154,7 +158,7 @@ class Main extends Component {
       .then(rsp => {
         const { scripts } = this.state;
         scripts[edit.title] = '';
-        this.setState({ scripts })
+        this.setState({ scripts, edit: getDefaultEdit() })
       })
       .catch(error => {
         console.error(error);
